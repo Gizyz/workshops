@@ -2,7 +2,7 @@ import express, { Request, Response } from "express";
 import { createServer } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import path from "path";
-import { makeState, updateState, State } from "./game";
+import { makeState, updateState, State, addOffence } from "./game";
 
 const app = express();
 const httpServer = createServer(app);
@@ -54,6 +54,9 @@ wss.on("connection", (ws: WebSocket) => {
     if (type === "score" && (playerIndex === 0 || playerIndex === 1)) {
       state = updateState(state, playerIndex);
       dispatch();
+    } else if (type === "offence" && (playerIndex === 0 || playerIndex === 1)) {
+      state = addOffence(state, playerIndex);
+      dispatch()
     } else if (type === "reset") {
       state = makeState(player1Name, player2Name, totalSets);
       dispatch();

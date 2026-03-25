@@ -17,8 +17,17 @@
 
         <!-- One row per player -->
         <template v-for="(player, pi) in state.players" :key="pi">
+   
           <!-- Name / button -->
           <div class="grid-cell name-col">
+            <!-- Offence button -->
+            <button
+              class="offence-btn"
+              :disabled="connected !== 'server' || state.winner !== null"
+              @click="offence(pi as 0 | 1)"
+            >
+            ⚠️ Offence           
+             </button>
             <button
               class="score-btn"
               :disabled="connected !== 'server' || state.winner !== null"
@@ -26,7 +35,15 @@
             >
               {{ player.name }}
             </button>
+            <!--Feature 1 current server-->
+            <span v-if="player.isServing">*</span>
+                      <div class="card-markers">
+            <span v-if="player.offences >= 1" class="marker yellow-card" title="Yellow Card"></span>
+            <span v-if="player.offences >= 2" class="marker red-card" title="Red Card"></span>
           </div>
+          </div>
+
+
 
           <!-- Set scores -->
           <div
@@ -132,6 +149,11 @@ function connect() {
 function score(playerIndex: 0 | 1) {
   if (ws?.readyState === WebSocket.OPEN) {
     ws.send(JSON.stringify({ type: "score", playerIndex }));
+  }
+}
+function offence(playerIndex: 0 | 1) {
+  if (ws?.readyState === WebSocket.OPEN) {
+    ws.send(JSON.stringify({ type: "offence", playerIndex }));
   }
 }
 
@@ -286,6 +308,46 @@ onUnmounted(() => {
 .score-btn:active:not(:disabled) { transform: scale(0.97); }
 .score-btn:disabled { opacity: 0.25; cursor: not-allowed; }
 
+.offence-btn {
+  /* Inherit shared structural properties */
+  font-family: 'DM Mono', monospace;
+  font-size: calc(var(--row-font-size) * 0.7); /* Slightly smaller than name */
+  letter-spacing: 0.05em;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease, transform 0.1s;
+  
+  /* Complementary 'Warning' Style */
+  background: transparent;
+  color: #ff4d4d; /* Subtle red to signal a foul/offence */
+  border: 2px solid #ff4d4d;
+  padding: 0.4rem 0.8rem;
+  min-width: 6rem;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+/* Hover state: Fills in the color slightly */
+.offence-btn:hover:not(:disabled) {
+  background: rgba(255, 77, 77, 0.1);
+  opacity: 0.9;
+}
+
+/* Active state: Match the score-btn behavior */
+.offence-btn:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+/* Disabled state: Match the score-btn opacity */
+.offence-btn:disabled {
+  opacity: 0.2;
+  border-color: currentColor;
+  cursor: not-allowed;
+}
+
+
+
+
 /* Winner banner */
 .winner-banner {
   display: flex;
@@ -349,6 +411,38 @@ onUnmounted(() => {
   background: #e05555;
   box-shadow: 0 0 6px #e05555;
   animation: pulse 1s ease-in-out infinite;
+}
+
+.name-col {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-markers {
+  display: flex;
+  gap: 4px;
+  margin-left: 4px;
+}
+
+.marker {
+  width: 12px;
+  height: 18px;
+  border-radius: 2px;
+  display: inline-block;
+  border: 1px solid rgba(0,0,0,0.1);
+}
+
+.yellow-card {
+  background-color: #ffd700; /* Yellow */
+}
+
+.red-card {
+  background-color: #ff4d4d; /* Red */
+}
+
+.serving-dot {
+  font-size: 0.8rem;
 }
 
 @keyframes pulse {

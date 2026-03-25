@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { checkSetWinner, makeState, State } from "../src/game";
+import { checkSetWinner, makeState, setServer, State } from "../src/game";
 
 // Helper: build a state with specific point values
 function stateWithPoints(p0: number, p1: number): State {
@@ -71,4 +71,9 @@ describe("checkSetWinner", () => {
   it("returns 1 at 13-15 (extended deuce, player 1)", () => {
     expect(checkSetWinner(stateWithPoints(13, 15))).toBe(1);
   });
+
+  // --- Player 1 is serving ---
+  it("player 1 is serving at point 0, 2 and 4", () => {
+    expect(setServer(stateWithPoints(0, 1))).toBe(true)
+  })
 });
